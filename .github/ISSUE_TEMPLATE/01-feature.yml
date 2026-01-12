@@ -1,0 +1,87 @@
+name: "Feature"
+description: "Build a feature aligned to the MVP spine (RFQ → Offers → Award → Deal Pack → Execution)"
+title: "[Feature]: "
+labels: ["type:feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Fill all sections. Keep it concise. If this touches the MVP spine, changes may require an ADR.
+
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Product outcome (what changes for the user)
+      description: One paragraph max. Who benefits and how?
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria (Definition of Done)
+      description: Bullet points, testable.
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: architecture
+    attributes:
+      label: Architecture / data touchpoints (tables, APIs, jobs)
+      description: List tables, endpoints, RLS implications, background jobs.
+      placeholder: |
+        Tables:
+        APIs:
+        RLS:
+        Jobs/cron:
+    validations:
+      required: true
+
+  - type: textarea
+    id: rtl
+    attributes:
+      label: Arabic/RTL considerations
+      description: Any UI copy, RTL layout risks, formatting, direction-sensitive components.
+      placeholder: |
+        Strings:
+        RTL risks:
+        Formatting:
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation
+    attributes:
+      label: Implementation plan (files touched)
+      description: List the likely files/components to change.
+      placeholder: |
+        - app/...
+        - components/...
+        - lib/...
+    validations:
+      required: true
+
+  - type: textarea
+    id: telemetry
+    attributes:
+      label: QA + Telemetry (tests, events, error capture)
+      description: What tests will you add? PostHog events? Sentry breadcrumbs?
+      placeholder: |
+        Tests:
+        PostHog events:
+        Sentry:
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: agent_gate
+    attributes:
+      label: Agent flow gate (must tick for core-spine features)
+      options:
+        - label: This feature aligns with MVP spine and does not add escrow/checkout or public supplier contact leakage.
+          required: true
+        - label: If this changes the frozen model (docs/01-model-freeze.md), I will create an ADR before merging.
+          required: true

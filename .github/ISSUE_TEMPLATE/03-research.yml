@@ -1,0 +1,43 @@
+name: "Research"
+description: "Time-boxed research with explicit output"
+title: "[Research]: "
+labels: ["type:research"]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Research question
+      description: What decision will this research enable?
+    validations:
+      required: true
+
+  - type: textarea
+    id: method
+    attributes:
+      label: Method (time-boxed)
+      description: How will you gather data? Sources? Interviews? Desk research?
+      placeholder: |
+        Time-box:
+        Sources:
+        Notes format:
+    validations:
+      required: true
+
+  - type: textarea
+    id: deliverable
+    attributes:
+      label: Deliverable (what will be produced)
+      placeholder: |
+        - 1 page summary
+        - Table of findings
+        - Recommendation + decision
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: close_criteria
+    attributes:
+      label: Close criteria
+      options:
+        - label: This issue ends with a clear recommendation and an update to docs/00-current-state.md or an ADR if needed.
+          required: true

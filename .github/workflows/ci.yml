@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # If there's no Node app yet, skip cleanly (docs-only repo state).
+      - name: Skip (no package.json yet)
+        if: ${{ hashFiles('package.json') == '' }}
+        run: echo "No Node project yet — skipping CI steps."
+
+      - uses: actions/setup-node@v4
+        if: ${{ hashFiles('package.json') != '' }}
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - run: npm ci
+        if: ${{ hashFiles('package-lock.json') != '' }}
+
+      - run: npm run lint --if-present
+        if: ${{ hashFiles('package.json') != '' }}
+
+      - run: npm run typecheck --if-present
+        if: ${{ hashFiles('package.json') != '' }}
+
+      - run: npm run test --if-present
+        if: ${{ hashFiles('package.json') != '' }}
+
+      - run: npm run build
+        if: ${{ hashFiles('package.json') != '' }}
