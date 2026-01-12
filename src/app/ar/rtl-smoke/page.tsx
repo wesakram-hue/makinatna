@@ -50,15 +50,15 @@ export default function Page() {
           <div className="grid grid-cols-3 gap-3 text-sm">
             <div className="rounded-md bg-muted p-3 text-center">
               <div className="text-xs text-muted-foreground">طلبات الشراء</div>
-              <div className="text-lg font-semibold">18</div>
+              <div className="text-lg font-semibold tabular-nums">18</div>
             </div>
             <div className="rounded-md bg-muted p-3 text-center">
               <div className="text-xs text-muted-foreground">العروض</div>
-              <div className="text-lg font-semibold">27</div>
+              <div className="text-lg font-semibold tabular-nums">27</div>
             </div>
             <div className="rounded-md bg-muted p-3 text-center">
               <div className="text-xs text-muted-foreground">الوظائف</div>
-              <div className="text-lg font-semibold">9</div>
+              <div className="text-lg font-semibold tabular-nums">9</div>
             </div>
           </div>
         </div>
