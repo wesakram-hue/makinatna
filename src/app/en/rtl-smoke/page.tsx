@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { t } from "@/lib/i18n";
+import { formatNumber } from "@/lib/format";
 
 const locale = "en";
 
@@ -54,19 +55,25 @@ export default function Page() {
               <div className="text-xs text-muted-foreground">
                 {t(locale, "smoke.statsRFQs")}
               </div>
-              <div className="text-lg font-semibold">18</div>
+              <div className="text-lg font-semibold tabular-nums">
+                {formatNumber(locale, 18)}
+              </div>
             </div>
             <div className="rounded-md bg-muted p-3 text-center">
               <div className="text-xs text-muted-foreground">
                 {t(locale, "smoke.statsOffers")}
               </div>
-              <div className="text-lg font-semibold">27</div>
+              <div className="text-lg font-semibold tabular-nums">
+                {formatNumber(locale, 27)}
+              </div>
             </div>
             <div className="rounded-md bg-muted p-3 text-center">
               <div className="text-xs text-muted-foreground">
                 {t(locale, "smoke.statsJobs")}
               </div>
-              <div className="text-lg font-semibold">9</div>
+              <div className="text-lg font-semibold tabular-nums">
+                {formatNumber(locale, 9)}
+              </div>
             </div>
           </div>
         </div>
