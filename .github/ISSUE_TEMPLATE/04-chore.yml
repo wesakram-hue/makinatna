@@ -1,0 +1,42 @@
+name: "Chore"
+description: "Docs, tooling, refactors, setup tasks (no product change)"
+title: "[Chore]: "
+labels: ["type:chore"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What needs doing and why (1–3 sentences).
+    validations:
+      required: true
+
+  - type: textarea
+    id: dod
+    attributes:
+      label: Definition of Done (DoD)
+      description: Bullet points, testable.
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: files
+    attributes:
+      label: Likely files / areas touched
+      placeholder: |
+        - docs/...
+        - .github/...
+        - scripts/...
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: guardrails
+    attributes:
+      label: Guardrails
+      options:
+        - label: This change does not modify the frozen MVP spine (docs/01-model-freeze.md). If it does, I will create an ADR.
+          required: true
