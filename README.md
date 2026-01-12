@@ -34,3 +34,9 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Supabase Health Check (manual test)
+
+1. Copy `.env.example` to `.env.local` and fill in your Supabase project values.
+2. Run `npm run dev`.
+3. Visit [http://localhost:3000/api/health](http://localhost:3000/api/health) to verify connectivity.
