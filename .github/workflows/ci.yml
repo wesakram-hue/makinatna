@@ -23,7 +23,7 @@ jobs:
           cache: "npm"
 
       - run: npm ci
-        if: ${{ hashFiles('package-lock.json') != '' }}
+        if: ${{ hashFiles('package.json') != '' && hashFiles('package-lock.json') != '' }}
 
       - run: npm run lint --if-present
         if: ${{ hashFiles('package.json') != '' }}
