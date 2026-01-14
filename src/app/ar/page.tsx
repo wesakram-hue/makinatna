@@ -16,6 +16,12 @@ export default function Page() {
       <p className="mt-3 text-muted-foreground">
         {t(locale, "home.subtitle")}
       </p>
+
+      <div className="mt-4">
+        <Link href="/ar/listings" className="underline">
+          {t(locale, "nav.listings")}
+        </Link>
+      </div>
     </main>
   );
 }

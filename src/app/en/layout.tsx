@@ -1,4 +1,5 @@
 import SetLocaleAttrs from "@/components/SetLocaleAttrs";
+import AuthHashBridge from "@/components/AuthHashBridge";
 
 export default function LocaleLayout({
   children,
@@ -8,6 +9,7 @@ export default function LocaleLayout({
   return (
     <>
       <SetLocaleAttrs locale="en" />
+      <AuthHashBridge locale="en" />
       {children}
     </>
   );

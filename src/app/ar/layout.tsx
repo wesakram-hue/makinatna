@@ -1,4 +1,5 @@
 import SetLocaleAttrs from "@/components/SetLocaleAttrs";
+import AuthHashBridge from "@/components/AuthHashBridge";
 import { Tajawal } from "next/font/google";
 
 const tajawal = Tajawal({
@@ -15,6 +16,7 @@ export default function LocaleLayout({
   return (
     <>
       <SetLocaleAttrs locale="ar" />
+      <AuthHashBridge locale="ar" />
       <div className={tajawal.className}>{children}</div>
     </>
   );

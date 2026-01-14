@@ -9,9 +9,14 @@ export default function Page() {
     <main className="p-6 space-y-8">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">{t(locale, "smoke.title")}</h1>
-        <Link href="/en" className="underline">
-          {t(locale, "smoke.backToHome")}
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link href="/en" className="underline">
+            {t(locale, "smoke.backHome")}
+          </Link>
+          <Link href="/ar/rtl-smoke" className="underline">
+            {t(locale, "nav.switchToArabic")}
+          </Link>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
