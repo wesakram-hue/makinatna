@@ -47,12 +47,6 @@
   --radius-4xl: calc(var(--radius) + 16px);
 }
 
-body {
-
-  /* Use our configured sans font, with a safe fallback */
-  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
-}
-
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -129,4 +123,8 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+html[lang="ar"] body {
+  font-size: 16.5px;
 }

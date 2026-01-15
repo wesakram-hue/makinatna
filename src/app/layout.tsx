@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Geist_Mono } from "next/font/google";
+import { Inter, Geist_Mono, Cairo } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
@@ -11,6 +11,11 @@ const inter = Inter({
 const geistMono = Geist_Mono({
   variable: "--font-mono",
   subsets: ["latin"],
+  display: "swap",
+});
+
+const cairo = Cairo({
+  subsets: ["latin", "arabic"],
   display: "swap",
 });
 
@@ -26,7 +31,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" dir="ltr" suppressHydrationWarning>
-      <body className={`${inter.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${inter.variable} ${geistMono.variable} ${cairo.className} antialiased`}>
         {children}
       </body>
     </html>

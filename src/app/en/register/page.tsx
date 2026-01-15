@@ -2,22 +2,21 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { t } from "@/lib/i18n";
 import { createServerClient } from "@/lib/supabase/server";
-import { signUp } from "@/lib/auth/actions";
+import { registerUser } from "@/lib/auth/actions";
 
 const locale = "en";
 
-type SearchParams = { next?: string; error?: string; notice?: string };
+type SearchParams = { next?: string; error?: string; sent?: string; asSupplier?: string };
 
 export default async function Page({ searchParams }: { searchParams?: SearchParams }) {
   const supabase = await createServerClient();
   const { data } = await supabase.auth.getUser();
 
-  // If already signed in, send to supplier area (or wherever next would go)
   if (data.user) redirect("/en/supplier");
 
   const next = searchParams?.next ?? "/en/listings";
   const error = searchParams?.error ?? "";
-  const notice = searchParams?.notice ?? "";
+  const sent = searchParams?.sent === "1";
   const asSupplierParam = searchParams?.asSupplier === "1";
   const defaultAsSupplier = asSupplierParam || next.startsWith("/en/supplier");
 
@@ -41,13 +40,16 @@ export default async function Page({ searchParams }: { searchParams?: SearchPara
         </div>
       ) : null}
 
-      {notice === "check_email" ? (
+      {sent ? (
         <div className="rounded border border-border bg-muted/30 p-4 text-sm">
-          {t(locale, "auth.checkEmail")}
+          {t(locale, "auth.checkEmail")}{" "}
+          <Link className="underline" href={`/en/sign-in?next=${encodeURIComponent(next)}`}>
+            {t(locale, "auth.signIn")}
+          </Link>
         </div>
       ) : null}
 
-      <form action={signUp} className="space-y-4 max-w-xl">
+      <form action={registerUser} className="space-y-4 max-w-xl">
         <input type="hidden" name="locale" value={locale} />
         <input type="hidden" name="next" value={next} />
 
@@ -82,8 +84,8 @@ export default async function Page({ searchParams }: { searchParams?: SearchPara
         <label className="flex items-start gap-3 text-sm">
           <input
             type="checkbox"
-            name="register_as_supplier"
-            value="on"
+            name="as_supplier"
+            value="1"
             defaultChecked={defaultAsSupplier}
             className="mt-1 h-4 w-4 rounded border border-input"
           />

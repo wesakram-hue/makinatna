@@ -110,5 +110,17 @@
   "supplier.myListingsNav": "إعلاناتي",
   "supplier.newListingNav": "إعلان جديد",
   "supplier.profileNav": "الملف الشخصي",
-  "supplier.settingsNav": "الإعدادات"
+  "supplier.settingsNav": "الإعدادات",
+  "auth.signedInAs": "تم تسجيل الدخول باسم",
+  "supplier.yes": "???",
+  "supplier.no": "??",
+  "supplier.listingsTitle": "إعلاناتي",
+  "auth.registerAsSupplier": "التسجيل كمورد",
+  "auth.registerAsSupplierHint": "سيتم نقلك لإعداد حساب المورد بعد إنشاء الحساب.",
+  "supplier.statusDraft": "?????",
+  "supplier.statusPublished": "?????",
+  "supplier.createdListing": "?? ????? ???????.",
+  "supplier.dailyRateLabel": "????? ??????",
+  "supplier.dailyRatePlaceholder": "????: 250",
+  "supplier.currencyLabel": "??????"
 }

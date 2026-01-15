@@ -8,7 +8,6 @@
   "nav.supplierPortal": "Supplier portal",
   "nav.signIn": "Sign in",
   "nav.register": "Register",
-  "nav.supplierPortal": "Supplier portal",
   "home.subtitle": "Welcome to our site. Explore our projects and updates.",
   "smoke.title": "RTL Smoke Test",
   "smoke.backToHome": "Back to English",
@@ -116,5 +115,12 @@
   "auth.haveAccount": "Already have an account?",
   "auth.noAccount": "Don't have an account?",
   "auth.registerAsSupplier": "Register as a supplier",
-  "auth.registerAsSupplierHint": "You'll be taken to supplier setup after creating your account."
+  "auth.registerAsSupplierHint": "You'll be taken to supplier setup after creating your account.",
+  "auth.signedInAs": "Signed in as",
+  "supplier.statusDraft": "Draft",
+  "supplier.statusPublished": "Published",
+  "supplier.createdListing": "Listing created.",
+  "supplier.dailyRateLabel": "Daily rate",
+  "supplier.dailyRatePlaceholder": "e.g. 250",
+  "supplier.currencyLabel": "Currency"
 }

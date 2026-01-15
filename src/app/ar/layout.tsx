@@ -1,10 +1,11 @@
 import SetLocaleAttrs from "@/components/SetLocaleAttrs";
 import AuthHashBridge from "@/components/AuthHashBridge";
-import { Tajawal } from "next/font/google";
+import AppHeader from "@/components/AppHeader";
+import { Noto_Sans_Arabic } from "next/font/google";
 
-const tajawal = Tajawal({
-  subsets: ["arabic", "latin"],
-  weight: ["200", "300", "400", "500", "700"],
+const notoArabic = Noto_Sans_Arabic({
+  subsets: ["arabic"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -17,7 +18,10 @@ export default function LocaleLayout({
     <>
       <SetLocaleAttrs locale="ar" />
       <AuthHashBridge locale="ar" />
-      <div className={tajawal.className}>{children}</div>
+      <div className={notoArabic.className}>
+        <AppHeader locale="ar" />
+        {children}
+      </div>
     </>
   );
 }

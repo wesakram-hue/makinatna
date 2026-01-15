@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createServerClient } from "@/lib/supabase/server";
 import type { Locale } from "@/lib/i18n";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 function safeLocale(v: unknown): Locale {
   return v === "ar" ? "ar" : "en";
@@ -165,6 +166,61 @@ export async function signUp(formData: FormData) {
   }
 
   redirect(`/${locale}/sign-in?check=1&next=${encodeURIComponent(destination)}`);
+}
+
+export async function registerUser(formData: FormData) {
+  const locale = safeLocale(formData.get("locale"));
+  const nextRaw = formData.get("next");
+  const wantsSupplier =
+    formData.get("as_supplier") === "1" || formData.get("as_supplier") === "on";
+
+  const nextBase =
+    typeof nextRaw === "string" && nextRaw ? safeNext(locale, nextRaw) : `/${locale}/listings`;
+  const destination = wantsSupplier ? `/${locale}/supplier` : nextBase;
+
+  const email = String(formData.get("email") ?? "").trim();
+  const password = String(formData.get("password") ?? "");
+
+  if (!email) {
+    redirect(
+      `/${locale}/register?next=${encodeURIComponent(
+        destination
+      )}&error=${encodeURIComponent("Email is required.")}`
+    );
+  }
+
+  if (password.length < 8) {
+    redirect(
+      `/${locale}/register?next=${encodeURIComponent(
+        destination
+      )}&error=${encodeURIComponent("Password must be at least 8 characters.")}`
+    );
+  }
+
+  const supabase = await createServerClient();
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+  });
+
+  if (error) {
+    redirect(
+      `/${locale}/register?next=${encodeURIComponent(
+        destination
+      )}&error=${encodeURIComponent(error.message)}`
+    );
+  }
+
+  const userId = data.user?.id;
+  if (userId) {
+    const admin = createAdminClient();
+    await admin.from("profiles").upsert({
+      id: userId,
+      role: wantsSupplier ? "supplier" : "buyer",
+    });
+  }
+
+  redirect(`/${locale}/register?sent=1&next=${encodeURIComponent(destination)}`);
 }
 
 export async function sendResetPasswordEmail(formData: FormData) {
