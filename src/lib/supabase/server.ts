@@ -1,7 +1,16 @@
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { createServerClient as createSSRClient } from "@supabase/ssr";
 
 type CookiePair = { name: string; value: string };
+
+type CookieSetter =
+  | ((name: string, value: string, options?: Record<string, unknown>) => void)
+  | ((cookie: { name: string; value: string } & Record<string, unknown>) => void);
+
+type CookieStore = {
+  getAll?: () => CookiePair[];
+  set?: CookieSetter;
+};
 
 function parseCookieHeader(cookieHeader: string | null): CookiePair[] {
   if (!cookieHeader) return [];
@@ -16,20 +25,41 @@ function parseCookieHeader(cookieHeader: string | null): CookiePair[] {
     });
 }
 
-function setCookieSafe(cookieStore: any, name: string, value: string, options?: any) {
+function setCookieSafe(
+  cookieStore: CookieStore,
+  name: string,
+  value: string,
+  options?: Record<string, unknown>
+) {
+  const setter = cookieStore.set;
+  if (!setter) return;
+
   try {
-    cookieStore.set(name, value, options);
+    (setter as (n: string, v: string, o?: Record<string, unknown>) => void)(name, value, options);
     return;
   } catch {}
+
   try {
-    cookieStore.set({ name, value, ...options });
+    (setter as (cookie: { name: string; value: string } & Record<string, unknown>) => void)({
+      name,
+      value,
+      ...(options ?? {}),
+    });
   } catch {}
 }
 
 export async function createServerClient() {
-  const cookieStore = await cookies();
-  const headerStore = await headers();
-  const cookieHeader = headerStore.get("cookie");
+  const cookieStore = cookies() as unknown as CookieStore;
+
+  let cookieHeader: string | null = null;
+  const getAll = (cookieStore as unknown as { getAll?: () => CookiePair[] }).getAll;
+
+  if (typeof getAll === "function") {
+    const all = getAll.call(cookieStore) as CookiePair[];
+    cookieHeader = all.map((c) => `${c.name}=${c.value}`).join("; ");
+  } else {
+    cookieHeader = null;
+  }
 
   return createSSRClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -41,7 +71,7 @@ export async function createServerClient() {
             cookieStore && typeof cookieStore.getAll === "function" ? cookieStore.getAll() : null;
 
           if (Array.isArray(all) && all.length) {
-            return all.map((c: any) => ({ name: c.name, value: c.value }));
+            return all.map((c) => ({ name: c.name, value: c.value }));
           }
 
           return parseCookieHeader(cookieHeader);

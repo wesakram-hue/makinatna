@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { t } from "@/lib/i18n";
 import { requireSupplierPortal } from "@/lib/auth/requireRole";
-import { createListingDraft } from "@/lib/actions/listings";
+import { createListingDraft } from "@/app/actions/listings";
 
 const locale = "en";
 
@@ -103,6 +103,9 @@ export default async function Page({
 
           <div className="flex gap-2">
             <Button type="submit">{t(locale, "supplier.saveDraft")}</Button>
+          </div>
+          <div className="text-sm text-muted-foreground">
+            After saving, you will add images on the next page.
           </div>
         </form>
       </Card>
