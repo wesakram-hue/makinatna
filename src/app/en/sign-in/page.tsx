@@ -16,10 +16,11 @@ const locale = "en";
 export default async function Page({
   searchParams,
 }: {
-  searchParams?: { next?: string; error?: string };
+  searchParams?: { next?: string; error?: string; check?: string };
 }) {
-  const next = searchParams?.next ?? "/en/supplier";
+  const next = searchParams?.next ?? "/en/listings";
   const error = searchParams?.error ?? "";
+  const check = searchParams?.check === "1";
 
   // Server-side auth visibility (ensures cookies are refreshed)
   const supabase = await createServerClient();
@@ -44,6 +45,12 @@ export default async function Page({
         <Alert variant="destructive">
           <AlertTitle>Sign-in failed</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      ) : null}
+
+      {check ? (
+        <Alert>
+          <AlertTitle>{t(locale, "auth.checkEmail")}</AlertTitle>
         </Alert>
       ) : null}
 
@@ -104,6 +111,13 @@ export default async function Page({
               <div>
                 <Link href={`/${locale}/reset-password`} className="text-sm underline">
                   {t(locale, "auth.forgotPassword")}
+                </Link>
+              </div>
+
+              <div className="text-sm">
+                {t(locale, "auth.noAccount")}{" "}
+                <Link href={`/en/register?next=${encodeURIComponent(next)}`} className="underline">
+                  {t(locale, "auth.signUp")}
                 </Link>
               </div>
             </form>

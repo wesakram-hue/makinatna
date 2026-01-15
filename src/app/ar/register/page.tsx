@@ -1,29 +1,34 @@
-export const dynamic = "force-dynamic";
-
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { t } from "@/lib/i18n";
-import { signIn } from "@/lib/auth/actions";
+import { createServerClient } from "@/lib/supabase/server";
+import { signUp } from "@/lib/auth/actions";
 
 const locale = "ar";
 
-export default function Page({
-  searchParams,
-}: {
-  searchParams?: { next?: string; error?: string; check?: string };
-}) {
+type SearchParams = { next?: string; error?: string; notice?: string };
+
+export default async function Page({ searchParams }: { searchParams?: SearchParams }) {
+  const supabase = await createServerClient();
+  const { data } = await supabase.auth.getUser();
+
+  if (data.user) redirect("/ar/supplier");
+
   const next = searchParams?.next ?? "/ar/listings";
   const error = searchParams?.error ?? "";
-  const check = searchParams?.check === "1";
+  const notice = searchParams?.notice ?? "";
+  const asSupplierParam = searchParams?.asSupplier === "1";
+  const defaultAsSupplier = asSupplierParam || next.startsWith("/ar/supplier");
 
   return (
     <main className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">{t(locale, "auth.signInTitle")}</h1>
+        <h1 className="text-2xl font-semibold">{t(locale, "auth.registerTitle")}</h1>
         <div className="flex items-center gap-4 text-sm">
           <Link className="underline" href="/ar">
             {t(locale, "nav.home")}
           </Link>
-          <Link className="underline" href={`/en/sign-in`}>
+          <Link className="underline" href="/en/register">
             {t(locale, "nav.switchToEnglish")}
           </Link>
         </div>
@@ -35,13 +40,13 @@ export default function Page({
         </div>
       ) : null}
 
-      {check ? (
+      {notice === "check_email" ? (
         <div className="rounded border border-border bg-muted/30 p-4 text-sm">
           {t(locale, "auth.checkEmail")}
         </div>
       ) : null}
 
-      <form action={signIn} className="space-y-4 max-w-xl">
+      <form action={signUp} className="space-y-4 max-w-xl">
         <input type="hidden" name="locale" value={locale} />
         <input type="hidden" name="next" value={next} />
 
@@ -67,24 +72,36 @@ export default function Page({
             id="password"
             name="password"
             type="password"
-            autoComplete="current-password"
+            autoComplete="new-password"
             required
             className="w-full rounded border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
         </div>
 
+        <label className="flex items-start gap-3 text-sm">
+          <input
+            type="checkbox"
+            name="register_as_supplier"
+            value="on"
+            defaultChecked={defaultAsSupplier}
+            className="mt-1 h-4 w-4 rounded border border-input"
+          />
+          <span>
+            <span className="font-medium">{t(locale, "auth.registerAsSupplier")}</span>
+            <span className="block text-muted-foreground">
+              {t(locale, "auth.registerAsSupplierHint")}
+            </span>
+          </span>
+        </label>
+
         <button className="inline-flex items-center rounded bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
-          {t(locale, "auth.signIn")}
+          {t(locale, "auth.signUp")}
         </button>
 
-        <Link href={`/${locale}/reset-password`} className="text-sm underline">
-          {t(locale, "auth.forgotPassword")}
-        </Link>
-
         <div className="text-sm">
-          {t(locale, "auth.noAccount")}{" "}
-          <Link href={`/ar/register?next=${encodeURIComponent(next)}`} className="underline">
-            {t(locale, "auth.signUp")}
+          {t(locale, "auth.haveAccount")}{" "}
+          <Link href="/ar/sign-in" className="underline">
+            {t(locale, "auth.signIn")}
           </Link>
         </div>
       </form>
