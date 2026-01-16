@@ -28,15 +28,6 @@ function getNum(fd: FormData, key: string): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-function slugify(input: string) {
-  return input
-    .toLowerCase()
-    .trim()
-    .replace(/['"]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
 export async function setListingStatus(localeArg: Locale, idArg: string, nextStatusArg: Status) {
   const locale = safeLocale(localeArg);
 
@@ -48,7 +39,7 @@ export async function setListingStatus(localeArg: Locale, idArg: string, nextSta
 
   const { data: listing } = await supabase
     .from("listings")
-    .select("id,supplier_id,slug,title_en,title_ar")
+    .select("id,supplier_id,slug")
     .eq("id", idArg)
     .maybeSingle();
 
@@ -72,9 +63,7 @@ export async function setListingStatus(localeArg: Locale, idArg: string, nextSta
   let nextSlug: string | null = listing.slug ?? null;
 
   if (wantsPublish && (!nextSlug || nextSlug.trim().length === 0)) {
-    const rawTitle = (listing.title_en ?? "").trim() || (listing.title_ar ?? "").trim();
-    const base = slugify(rawTitle) || "listing";
-    nextSlug = `${base}-${listing.id.slice(0, 6)}`;
+    nextSlug = `listing-${String(listing.id).slice(0, 8)}`;
   }
 
   const patch: { status: Status; published_at: string | null; slug?: string | null } = {
