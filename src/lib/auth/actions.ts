@@ -65,8 +65,9 @@ export async function signIn(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
+    const nextSafe = next && next.length > 0 ? next : `/${locale}/supplier`;
     redirect(
-      `/${locale}/sign-in?next=${encodeURIComponent(next)}&error=${encodeURIComponent(
+      `/${locale}/sign-in?next=${encodeURIComponent(nextSafe)}&error=${encodeURIComponent(
         error.message
       )}`
     );
@@ -78,8 +79,9 @@ export async function signIn(formData: FormData) {
 
   if (!user) {
     // Extremely defensive fallback: if cookies/session didn't stick, force a clear retry
+    const nextSafe = next && next.length > 0 ? next : `/${locale}/supplier`;
     redirect(
-      `/${locale}/sign-in?next=${encodeURIComponent(next)}&error=${encodeURIComponent(
+      `/${locale}/sign-in?next=${encodeURIComponent(nextSafe)}&error=${encodeURIComponent(
         "Session not established. Please try again."
       )}`
     );

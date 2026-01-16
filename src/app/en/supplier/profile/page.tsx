@@ -12,13 +12,14 @@ const locale = "en";
 export default async function Page({
   searchParams,
 }: {
-  searchParams?: { error?: string; next?: string; profile_saved?: string };
+  searchParams?: Promise<{ error?: string; next?: string; profile_saved?: string }>;
 }) {
   const { supabase, user, role } = await requireSupplierPortal(locale);
 
-  const next = searchParams?.next ?? "/en/supplier";
-  const error = searchParams?.error ?? "";
-  const saved = searchParams?.profile_saved === "1";
+  const sp = (await searchParams) ?? {};
+  const next = sp.next ?? "/en/supplier";
+  const error = sp.error ?? "";
+  const saved = sp.profile_saved === "1";
 
   const { data: supplier } = await supabase
     .from("suppliers")

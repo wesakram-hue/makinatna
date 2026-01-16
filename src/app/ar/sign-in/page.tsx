@@ -6,14 +6,15 @@ import { signIn } from "@/lib/auth/actions";
 
 const locale = "ar";
 
-export default function Page({
+export default async function Page({
   searchParams,
 }: {
-  searchParams?: { next?: string; error?: string; check?: string };
+  searchParams?: Promise<{ next?: string; error?: string; check?: string }>;
 }) {
-  const next = searchParams?.next ?? "/ar/listings";
-  const error = searchParams?.error ?? "";
-  const check = searchParams?.check === "1";
+  const sp = searchParams ? await searchParams : {};
+  const next = sp.next ?? "/ar/listings";
+  const error = sp.error ?? "";
+  const check = sp.check === "1";
 
   return (
     <main className="p-6 space-y-6">

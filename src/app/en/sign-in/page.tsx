@@ -16,11 +16,12 @@ const locale = "en";
 export default async function Page({
   searchParams,
 }: {
-  searchParams?: { next?: string; error?: string; check?: string };
+  searchParams?: Promise<{ next?: string; error?: string; check?: string }>;
 }) {
-  const next = searchParams?.next ?? "/en/listings";
-  const error = searchParams?.error ?? "";
-  const check = searchParams?.check === "1";
+  const sp = (await searchParams) ?? {};
+  const next = sp.next ?? "/en/listings";
+  const error = sp.error ?? "";
+  const check = sp.check === "1";
 
   // Server-side auth visibility (ensures cookies are refreshed)
   const supabase = await createServerClient();

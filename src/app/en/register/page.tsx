@@ -8,16 +8,21 @@ const locale = "en";
 
 type SearchParams = { next?: string; error?: string; sent?: string; asSupplier?: string };
 
-export default async function Page({ searchParams }: { searchParams?: SearchParams }) {
+export default async function Page({
+  searchParams,
+}: {
+  searchParams?: Promise<SearchParams>;
+}) {
   const supabase = await createServerClient();
   const { data } = await supabase.auth.getUser();
 
   if (data.user) redirect("/en/supplier");
 
-  const next = searchParams?.next ?? "/en/listings";
-  const error = searchParams?.error ?? "";
-  const sent = searchParams?.sent === "1";
-  const asSupplierParam = searchParams?.asSupplier === "1";
+  const sp = (await searchParams) ?? {};
+  const next = sp.next ?? "/en/listings";
+  const error = sp.error ?? "";
+  const sent = sp.sent === "1";
+  const asSupplierParam = sp.asSupplier === "1";
   const defaultAsSupplier = asSupplierParam || next.startsWith("/en/supplier");
 
   return (

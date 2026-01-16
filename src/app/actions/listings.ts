@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireSupplierPortal } from "@/lib/auth/requireRole";
+import { isUuid } from "@/lib/uuid";
 
 type Locale = "en" | "ar";
 type Status = "draft" | "published" | "archived";
@@ -13,10 +14,6 @@ function safeLocale(v: unknown): Locale {
 
 function isStatus(v: unknown): v is Status {
   return v === "draft" || v === "published" || v === "archived";
-}
-
-function isUuid(v: string) {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
 }
 
 function getStr(fd: FormData, key: string): string {
@@ -31,21 +28,65 @@ function getNum(fd: FormData, key: string): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-export async function setListingStatus(
-  localeArg: Locale,
-  idArg: string,
-  nextStatusArg: Status,
-  _formData?: FormData
-) {
+function slugify(input: string) {
+  return input
+    .toLowerCase()
+    .trim()
+    .replace(/['"]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+export async function setListingStatus(localeArg: Locale, idArg: string, nextStatusArg: Status) {
   const locale = safeLocale(localeArg);
 
   if (!isUuid(idArg) || !isStatus(nextStatusArg)) {
-    redirect(`/${locale}/supplier/listings?err=bad_id&src=action`);
+    throw new Error("bad_request: invalid id or status");
   }
 
-  const { supabase } = await requireSupplierPortal(locale);
+  const { supabase, user } = await requireSupplierPortal(locale);
 
-  const { error } = await supabase.from("listings").update({ status: nextStatusArg }).eq("id", idArg);
+  const { data: listing } = await supabase
+    .from("listings")
+    .select("id,supplier_id,slug,title_en,title_ar")
+    .eq("id", idArg)
+    .maybeSingle();
+
+  if (!listing) {
+    redirect(`/${locale}/supplier/listings?err=not_found&src=action`);
+  }
+
+  const { data: owns } = await supabase
+    .from("suppliers")
+    .select("id")
+    .eq("id", listing.supplier_id)
+    .eq("owner_id", user.id)
+    .maybeSingle();
+
+  if (!owns) {
+    redirect(`/${locale}/supplier/listings?err=not_found&src=action`);
+  }
+
+  const wantsPublish = nextStatusArg === "published";
+
+  let nextSlug: string | null = listing.slug ?? null;
+
+  if (wantsPublish && (!nextSlug || nextSlug.trim().length === 0)) {
+    const rawTitle = (listing.title_en ?? "").trim() || (listing.title_ar ?? "").trim();
+    const base = slugify(rawTitle) || "listing";
+    nextSlug = `${base}-${listing.id.slice(0, 6)}`;
+  }
+
+  const patch: { status: Status; published_at: string | null; slug?: string | null } = {
+    status: nextStatusArg,
+    published_at: wantsPublish ? new Date().toISOString() : null,
+  };
+
+  if (wantsPublish) {
+    patch.slug = nextSlug;
+  }
+
+  const { error } = await supabase.from("listings").update(patch).eq("id", idArg);
 
   if (error) {
     redirect(`/${locale}/supplier/listings?err=${encodeURIComponent(error.message)}&src=action`);
@@ -62,11 +103,15 @@ export async function createListingDraft(formData: FormData) {
 
   const { supabase, user } = await requireSupplierPortal(locale);
 
-  const { data: supplier } = await supabase
+  const { data: supplier, error: supplierErr } = await supabase
     .from("suppliers")
     .select("id,display_name,city")
     .eq("owner_id", user.id)
-    .maybeSingle();
+    .single();
+
+  if (supplierErr) {
+    throw new Error(supplierErr.message);
+  }
 
   const supplierIncomplete =
     !supplier?.id ||
@@ -84,6 +129,17 @@ export async function createListingDraft(formData: FormData) {
   const descAr = getStr(formData, "description_ar");
   const dailyRate = getNum(formData, "daily_rate");
   const currency = getStr(formData, "currency") || "SAR";
+  let cityId: string | null = null;
+
+  if (supplier.city) {
+    const { data: cityMatch } = await supabase
+      .from("cities")
+      .select("id")
+      .ilike("name_en", supplier.city)
+      .limit(1)
+      .maybeSingle();
+    cityId = cityMatch?.id ?? null;
+  }
 
   if (!titleEn && !titleAr) {
     redirect(`/${locale}/supplier/listings/new?error=missing_title`);
@@ -99,36 +155,27 @@ export async function createListingDraft(formData: FormData) {
       description_ar: descAr || null,
       daily_rate: dailyRate,
       currency,
+      city_id: cityId,
       status: "draft",
     })
-    .select("id,created_at")
-    .maybeSingle();
-
-  console.log("[createListingDraft] insertData", inserted);
+    .select("id")
+    .single();
 
   if (insertErr) {
     redirect(`/${locale}/supplier/listings/new?error=${encodeURIComponent(insertErr.message)}`);
   }
 
-  let newId = inserted?.id;
-
+  const newId = inserted?.id;
   if (!newId || !isUuid(newId)) {
-    const { data: latest, error: latestErr } = await supabase
-      .from("listings")
-      .select("id")
-      .eq("supplier_id", supplier.id)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (!latestErr && latest?.id && isUuid(latest.id)) {
-      newId = latest.id;
-    }
-  }
-
-  if (!newId || !isUuid(newId)) {
-    redirect(`/${locale}/supplier/listings?err=bad_id&src=create`);
+    throw new Error("create_listing: insert returned invalid id");
   }
 
   redirect(`/${locale}/supplier/listings/${newId}?created=1#images`);
 }
+
+// Backfill helper (manual SQL):
+// update listings set city_id = cities.id
+// from suppliers
+// join cities on lower(cities.name_en) = lower(suppliers.city)
+// where listings.supplier_id = suppliers.id
+//   and listings.city_id is null;

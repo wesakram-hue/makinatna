@@ -122,5 +122,7 @@
   "supplier.createdListing": "Listing created.",
   "supplier.dailyRateLabel": "Daily rate",
   "supplier.dailyRatePlaceholder": "e.g. 250",
-  "supplier.currencyLabel": "Currency"
+  "supplier.currencyLabel": "Currency",
+  "supplier.profileDesc": "Update your supplier details.",
+  "supplier.saveProfile": "Save profile"
 }

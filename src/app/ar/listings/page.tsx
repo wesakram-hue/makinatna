@@ -2,21 +2,18 @@ import Link from "next/link";
 import { createServerClient } from "@/lib/supabase/server";
 import { t } from "@/lib/i18n";
 import { formatCurrency } from "@/lib/format";
-import { localizeText } from "@/lib/localize";
 import BidiText from "@/components/BidiText";
 
 type PublicListingRow = {
   id: string;
+  slug: string | null;
   title_en: string | null;
   title_ar: string | null;
-  supplier_display_name: string | null;
-  city_name_en: string | null;
-  city_name_ar: string | null;
-  category_name_en: string | null;
-  category_name_ar: string | null;
   daily_rate: number | string | null;
   currency: string | null;
   published_at: string | null;
+  supplier_display_name: string | null;
+  supplier_city: string | null;
 };
 
 const locale = "ar";
@@ -26,7 +23,7 @@ export default async function ListingsPage() {
   const { data, error } = await supabase
     .from("public_listings")
     .select(
-      "id,title_en,title_ar,city_name_en,city_name_ar,category_name_en,category_name_ar,supplier_display_name,daily_rate,currency,published_at"
+      "id,slug,title_en,title_ar,daily_rate,currency,published_at,supplier_display_name,supplier_city"
     )
     .order("published_at", { ascending: false })
     .limit(50);
@@ -59,21 +56,24 @@ export default async function ListingsPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {listings.map((item) => {
-            const titleText = localizeText(locale, item.title_en, item.title_ar).trim();
-            const title = titleText || t(locale, "listing.untitled");
-            const cityText = localizeText(locale, item.city_name_en, item.city_name_ar);
-            const categoryText = localizeText(locale, item.category_name_en, item.category_name_ar);
-            const supplier = (item.supplier_display_name ?? "").trim() || "—";
+            const title =
+              [item.title_ar, item.title_en].find((v) => (v ?? "").trim().length > 0)?.trim() ||
+              t(locale, "listing.untitled");
+            const city = item.supplier_city ?? "";
+            const supplier =
+              (item.supplier_display_name ?? "").trim() || t(locale, "listings.supplier");
             const dailyRate = item.daily_rate == null ? null : Number(item.daily_rate);
             const price =
               dailyRate != null && Number.isFinite(dailyRate)
                 ? formatCurrency(locale, dailyRate, item.currency ?? "SAR")
                 : null;
+            const href = item.slug ? `/ar/listings/${item.slug}` : `/ar/listings/${item.id}`;
 
             return (
-              <div
+              <Link
                 key={item.id}
-                className="space-y-2 rounded-lg border border-border bg-muted/30 p-4"
+                href={href}
+                className="block rounded-lg border border-border bg-muted/30 p-4 space-y-2 hover:border-ring"
               >
                 <h2 className="text-lg font-semibold">
                   <BidiText>{title}</BidiText>
@@ -82,10 +82,7 @@ export default async function ListingsPage() {
                   {t(locale, "listings.supplier")}: <BidiText>{supplier}</BidiText>
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  {t(locale, "listings.city")}: <BidiText>{cityText}</BidiText>
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {t(locale, "listings.category")}: <BidiText>{categoryText}</BidiText>
+                  {t(locale, "listings.city")}: <BidiText>{city}</BidiText>
                 </div>
                 {price && (
                   <div className="text-sm font-medium">
@@ -95,7 +92,7 @@ export default async function ListingsPage() {
                     - {t(locale, "listings.pricePerDay")}
                   </div>
                 )}
-              </div>
+              </Link>
             );
           })}
         </div>

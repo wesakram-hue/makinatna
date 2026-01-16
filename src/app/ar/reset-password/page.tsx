@@ -4,14 +4,15 @@ import { sendResetPasswordEmail } from "@/lib/auth/actions";
 
 const locale = "ar";
 
-export default function Page({
+export default async function Page({
   searchParams,
 }: {
-  searchParams?: Record<string, string | string[]>;
+  searchParams?: Promise<Record<string, string | string[]>>;
 }) {
-  const e = searchParams?.error;
+  const sp = searchParams ? await searchParams : {};
+  const e = sp.error;
   const error = Array.isArray(e) ? e[0] : e;
-  const sent = searchParams?.sent === "1";
+  const sent = sp.sent === "1";
 
   return (
     <main className="p-6 space-y-6 max-w-md">

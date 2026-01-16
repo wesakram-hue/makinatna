@@ -1,7 +1,7 @@
 {
   "app.name": "مكيناتنا",
   "nav.switchToArabic": "العربية",
-  "nav.switchToEnglish": "English",
+  "nav.switchToEnglish": "الإنجليزية",
   "nav.home": "الرئيسية",
   "nav.rtlSmoke": "اختبار الاتجاه",
   "nav.listings": "الإعلانات",
@@ -112,15 +112,17 @@
   "supplier.profileNav": "الملف الشخصي",
   "supplier.settingsNav": "الإعدادات",
   "auth.signedInAs": "تم تسجيل الدخول باسم",
-  "supplier.yes": "???",
-  "supplier.no": "??",
+  "supplier.yes": "نعم",
+  "supplier.no": "لا",
   "supplier.listingsTitle": "إعلاناتي",
   "auth.registerAsSupplier": "التسجيل كمورد",
   "auth.registerAsSupplierHint": "سيتم نقلك لإعداد حساب المورد بعد إنشاء الحساب.",
   "supplier.statusDraft": "مسودة",
   "supplier.statusPublished": "منشور",
-  "supplier.createdListing": "تم إنشاء الإعلان بنجاح",
+  "supplier.createdListing": "تم إنشاء الإعلان",
   "supplier.dailyRateLabel": "السعر اليومي",
-  "supplier.dailyRatePlaceholder": "مثال: 250",
-  "supplier.currencyLabel": "العملة"
+  "supplier.dailyRatePlaceholder": "مثال: 1000",
+  "supplier.currencyLabel": "العملة",
+  "supplier.profileDesc": "قم بتحديث معلومات المورّد الخاصة بك.",
+  "supplier.saveProfile": "حفظ الملف"
 }

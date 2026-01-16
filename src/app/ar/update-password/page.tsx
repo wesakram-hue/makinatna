@@ -11,10 +11,11 @@ const locale = "ar";
 export default async function Page({
   searchParams,
 }: {
-  searchParams?: { code?: string; error?: string };
+  searchParams?: Promise<{ code?: string; error?: string }>;
 }) {
-  const code = searchParams?.code;
-  const error = searchParams?.error ? decodeURIComponent(searchParams.error) : "";
+  const sp = (await searchParams) ?? {};
+  const code = sp.code;
+  const error = sp.error ? decodeURIComponent(sp.error) : "";
 
   if (code) {
     redirect(

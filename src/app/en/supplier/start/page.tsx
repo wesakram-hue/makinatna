@@ -12,7 +12,7 @@ type SearchParams = { error?: string | string[] };
 export default async function SupplierStartPage({
   searchParams,
 }: {
-  searchParams?: SearchParams;
+  searchParams?: Promise<SearchParams>;
 }) {
   const supabase = await createServerClient();
 
@@ -45,7 +45,8 @@ export default async function SupplierStartPage({
     redirect("/en/supplier");
   }
 
-  const e = searchParams?.error;
+  const sp = (await searchParams) ?? {};
+  const e = sp.error;
   const error = Array.isArray(e) ? e[0] : e;
 
   return (

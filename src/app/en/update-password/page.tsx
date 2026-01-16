@@ -11,10 +11,11 @@ const locale = "en";
 export default async function Page({
   searchParams,
 }: {
-  searchParams?: { code?: string; error?: string };
+  searchParams?: Promise<{ code?: string; error?: string }>;
 }) {
-  const code = searchParams?.code;
-  const error = searchParams?.error ? decodeURIComponent(searchParams.error) : "";
+  const sp = (await searchParams) ?? {};
+  const code = sp.code;
+  const error = sp.error ? decodeURIComponent(sp.error) : "";
 
   // If Supabase sent a PKCE recovery code, exchange it via Route Handler (so cookies can be written)
   if (code) {

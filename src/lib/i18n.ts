@@ -3,7 +3,9 @@ import en from "@/messages/en.json";
 
 export type Locale = "en" | "ar";
 
-const dictionaries: Record<Locale, Record<string, string>> = {
+type Messages = Record<string, string>;
+
+const dictionaries: Record<Locale, Messages> = {
   en,
   ar,
 };
@@ -12,7 +14,6 @@ export function getMessages(locale: Locale) {
   return dictionaries[locale];
 }
 
-type Messages = Record<string, string>;
 type InterpolationValues = Record<string, string | number>;
 
 export function t(locale: Locale, key: string, params?: InterpolationValues) {

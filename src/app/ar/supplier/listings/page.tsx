@@ -19,13 +19,22 @@ type ListingRow = {
   created_at: string | null;
 };
 
+type SearchParams = {
+  created?: string;
+  err?: string;
+  src?: string;
+};
+
 const locale = "ar";
 
 export default async function Page({
   searchParams,
 }: {
-  searchParams?: { created?: string };
+  searchParams: Promise<SearchParams>;
 }) {
+  const sp = await searchParams;
+  const created = sp?.created === "1";
+
   const { supabase, user } = await requireSupplierPortal(locale);
 
   const { data: supplier, error: supplierErr } = await supabase
@@ -34,9 +43,7 @@ export default async function Page({
     .eq("owner_id", user.id)
     .maybeSingle();
 
-  if (supplierErr) {
-    throw new Error(supplierErr.message);
-  }
+  if (supplierErr) throw new Error(supplierErr.message);
 
   if (!supplier) {
     return (
@@ -64,7 +71,6 @@ export default async function Page({
     .order("created_at", { ascending: false });
 
   const listings = (data ?? []) as ListingRow[];
-  const created = searchParams?.created === "1";
 
   return (
     <div className="space-y-6">
@@ -112,6 +118,8 @@ export default async function Page({
                 ? formatCurrency(locale, l.daily_rate, l.currency ?? "SAR")
                 : null;
 
+            const nextStatus = isPublished ? "draft" : "published";
+
             return (
               <Card key={l.id} className="p-4 space-y-2">
                 <div className="flex items-center justify-between gap-3">
@@ -125,7 +133,10 @@ export default async function Page({
 
                 {price ? (
                   <div className="text-sm font-medium">
-                    <span dir="ltr" className="tabular-nums">{price}</span> · {t(locale, "listings.pricePerDay")}
+                    <span dir="ltr" className="tabular-nums">
+                      {price}
+                    </span>{" "}
+                    · {t(locale, "listings.pricePerDay")}
                   </div>
                 ) : (
                   <div className="text-sm text-muted-foreground">—</div>
@@ -135,11 +146,12 @@ export default async function Page({
                   <Link className="underline" href={`/ar/supplier/listings/${l.id}`}>
                     عرض
                   </Link>
-  <form action={setListingStatus.bind(null, locale, l.id, isPublished ? "draft" : "published")}>
-    <Button type="submit" variant="secondary" size="sm">
-      {isPublished ? "إلغاء النشر" : "نشر"}
-    </Button>
-  </form>
+
+                  <form action={setListingStatus.bind(null, locale, l.id, nextStatus)}>
+                    <Button type="submit" variant="secondary" size="sm">
+                      {isPublished ? "إلغاء النشر" : "نشر"}
+                    </Button>
+                  </form>
                 </div>
               </Card>
             );

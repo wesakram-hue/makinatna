@@ -14,10 +14,9 @@ function main() {
   const ar = readJson(arPath);
 
   const missingInAr = Object.keys(en).filter((key) => !(key in ar));
-  const badArValues = Object.entries(ar)
-    .filter(([key, value]) => typeof value === "string")
-    .filter(([, value]) => value.includes("????") || value.includes("�"))
-    .map(([key]) => key);
+  const badArValues = Object.values(ar)
+    .filter((value) => typeof value === "string")
+    .filter((value) => value.includes("????") || value.includes("Лил"));
 
   const errors = [];
   if (missingInAr.length > 0) {
@@ -40,3 +39,4 @@ function main() {
 }
 
 main();
+

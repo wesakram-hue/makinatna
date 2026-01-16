@@ -8,50 +8,37 @@ import { t } from "@/lib/i18n";
 import { requireSupplierPortal } from "@/lib/auth/requireRole";
 import { createListingDraft } from "@/app/actions/listings";
 
+type SearchParams = { error?: string };
+
 const locale = "en";
 
 export default async function Page({
   searchParams,
 }: {
-  searchParams?: { error?: string };
+  searchParams: Promise<SearchParams>;
 }) {
-  const { supabase, user } = await requireSupplierPortal(locale);
+  const sp = await searchParams;
+  const error = sp?.error ?? "";
 
-  const { data: supplier } = await supabase
-    .from("suppliers")
-    .select("id,display_name,city")
-    .eq("owner_id", user.id)
-    .maybeSingle();
-
-  const supplierIncomplete =
-    !supplier?.id || !supplier.display_name || supplier.display_name.trim().length === 0 || !supplier.city;
-
-  const error = searchParams?.error ?? "";
+  await requireSupplierPortal(locale);
 
   return (
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">{t(locale, "supplier.newListingNav")}</h1>
-          <p className="text-sm text-muted-foreground">{t(locale, "supplier.newListingDesc")}</p>
+          <h1 className="text-2xl font-semibold">{t(locale, "supplier.addListing")}</h1>
+          <p className="text-sm text-muted-foreground">
+            {t(locale, "supplier.listingsDesc")}
+          </p>
         </div>
-        <Button variant="outline" asChild>
+        <Button asChild>
           <Link href="/en/supplier/listings">{t(locale, "supplier.myListingsNav")}</Link>
         </Button>
       </div>
 
-      {supplierIncomplete ? (
-        <div className="rounded border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
-          {t(locale, "supplier.profileIncomplete")}{" "}
-          <Link href="/en/supplier/profile" className="underline">
-            {t(locale, "supplier.profileNav")}
-          </Link>
-        </div>
-      ) : null}
-
       {error ? (
         <div className="rounded border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
-          {error === "missing_title" ? "Please add a title (English or Arabic)." : error}
+          {error}
         </div>
       ) : null}
 
@@ -61,12 +48,33 @@ export default async function Page({
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="title_en">{t(locale, "supplier.listingTitleLabel")} (EN)</Label>
-              <Input id="title_en" name="title_en" placeholder={t(locale, "supplier.listingTitlePlaceholder")} />
+              <Label htmlFor="title_en">{t(locale, "listing.titleEn")}</Label>
+              <Input id="title_en" name="title_en" placeholder="Title (English)" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="title_ar">{t(locale, "supplier.listingTitleLabel")} (AR)</Label>
-              <Input id="title_ar" name="title_ar" placeholder="مثال: مولد كهرباء 50 ك.ف.أ" />
+              <Label htmlFor="title_ar">{t(locale, "listing.titleAr")}</Label>
+              <Input id="title_ar" name="title_ar" placeholder="Title (Arabic)" />
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="description_en">{t(locale, "listing.descriptionEn")}</Label>
+              <Textarea
+                id="description_en"
+                name="description_en"
+                placeholder="Description (English)"
+                className="min-h-[120px]"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="description_ar">{t(locale, "listing.descriptionAr")}</Label>
+              <Textarea
+                id="description_ar"
+                name="description_ar"
+                placeholder="Description (Arabic)"
+                className="min-h-[120px]"
+              />
             </div>
           </div>
 
@@ -76,7 +84,9 @@ export default async function Page({
               <Input
                 id="daily_rate"
                 name="daily_rate"
-                inputMode="decimal"
+                type="number"
+                min="0"
+                step="1"
                 placeholder={t(locale, "supplier.dailyRatePlaceholder")}
               />
             </div>
@@ -86,27 +96,7 @@ export default async function Page({
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="description_en">{t(locale, "supplier.listingDescriptionLabel")} (EN)</Label>
-              <Textarea
-                id="description_en"
-                name="description_en"
-                placeholder={t(locale, "supplier.listingDescriptionPlaceholder")}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="description_ar">{t(locale, "supplier.listingDescriptionLabel")} (AR)</Label>
-              <Textarea id="description_ar" name="description_ar" placeholder="اكتب وصفاً قصيراً عن المنتج أو الخدمة." />
-            </div>
-          </div>
-
-          <div className="flex gap-2">
-            <Button type="submit">{t(locale, "supplier.saveDraft")}</Button>
-          </div>
-          <div className="text-sm text-muted-foreground">
-            After saving, you will add images on the next page.
-          </div>
+          <Button type="submit">{t(locale, "supplier.saveDraft") ?? "Save draft"}</Button>
         </form>
       </Card>
     </div>

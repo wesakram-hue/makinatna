@@ -27,25 +27,23 @@ export async function updateSupplierProfile(formData: FormData) {
     redirect(`/${locale}/supplier/profile?error=missing_name&next=${encodeURIComponent(next)}`);
   }
 
-  const { data: supplierRow } = await supabase
+  const { data: upserted, error } = await supabase
     .from("suppliers")
-    .select("id")
-    .eq("owner_id", user.id)
-    .maybeSingle();
-
-  if (role !== "admin" && !supplierRow?.id) {
-    redirect(`/${locale}/supplier/start?next=${encodeURIComponent(next)}`);
-  }
-
-  const { error } = await supabase
-    .from("suppliers")
-    .update({ display_name, city: city || null })
-    .eq("owner_id", user.id);
+    .upsert(
+      { owner_id: user.id, display_name, city: city || null },
+      { onConflict: "owner_id" }
+    )
+    .select("id, display_name, city")
+    .single();
 
   if (error) {
     redirect(
       `/${locale}/supplier/profile?error=${encodeURIComponent(error.message)}&next=${encodeURIComponent(next)}`
     );
+  }
+
+  if (!upserted?.id && role !== "admin") {
+    redirect(`/${locale}/supplier/start?next=${encodeURIComponent(next)}`);
   }
 
   redirect(`${next}?profile_saved=1`);
